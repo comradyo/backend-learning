@@ -1,0 +1,58 @@
+version: '3.9'
+
+# описываем приложения, которые будут работать
+# 
+
+# Запуск
+# docker compose up -d go-db
+# The -d flag is to run the container in detached mode, so it will run in the background.
+
+# Build
+# docker compose build
+# Судя по всему, строит образы всех приложений, у которых есть инструкция "build".
+# Как связан build с Dockerfile?
+# Вот как: вообще, обычно docker compose используется тогда, когда у нас есть код одного приложения, 
+# и нужны ещё какие-то сервисы ему в придачу (БД, redis, kafka).
+# Тогда директива build используется для сервиса непосредственно нашего приложения, и ставится точка.
+# Docker (или docker compose) найдет Dockerfile и выполнит его инструкции.
+# Если же нужно построить несколько своих приложений (фронт и бек, например), мы описываем директиву build
+# более подробно (там есть атрибуты "context", "dockerfile", ещё что-то), 
+# и указываем Dockerfile-ы отдельно для каждого из приложений.
+# Если понадобится, уточнить.
+
+# psql -h localhost -p 5432 -d postgres -U postgres -W
+
+services:
+  go-app:
+    container_name: go-app
+    image: go-app:1.0.0 # тут ещё можно указать свой username из Dockerhub
+    build: .            # Инструкция для build-а образа
+    environment:
+                  # Интересно, что хост - это имя приложения. Порт, видимо, выбирается по-умолчанию
+      DATABASE_URL: "host=go-db user=postgres password=postgres dbname=postgres sslmode=disable"
+    ports:        # The format is "host_port:container_port", т.е. "порт машины:порт контейнера"
+      - "8000:8000"
+    depends_on:   # Список приложений, которые хотим запустить до текущего.
+                  # (наверное, текущее не запустится, если зависимости не запустились)
+      - go-db
+  go-db:
+    container_name: go-db
+    image: postgres:17
+    environment:  # Чтобы брать переменные из окружения (и не хранить информацию в репозитории), 
+                  # можно указывать эти переменные вот так: DEBUG=${DEBUG}
+
+                  # we can't change the keys (ключи, а не значения) here, because we are using the Postgres image, defined by the Postgres team
+                  # Не очень понял, как эти переменные пробрасываются. Наверное, когда запускается контейнер,
+                  # создается пользователь и база с такими кредами (?). 
+                  # Вот как: когда создается образ (в Dockerfile-е постгреса), с помощью директивы ENTRYPOINT
+                  # вызывается скрипт "docker-entrypoint.sh" (хранится в образе), где и создается пользователь и база.
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:        
+      - "5432:5432"
+    volumes:      # какая-то сущность для хранения информации (при передаче контейнера она сохранится)
+      - pgdata:/var/lib/postgresql/data
+
+volumes:  
+  pgdata: {}
