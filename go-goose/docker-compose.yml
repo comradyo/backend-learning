@@ -1,0 +1,29 @@
+version: '3.9'
+
+# psql -h localhost -p 5432 -d postgres -U postgres -W
+
+services:
+  go-app:
+    container_name: go-app-with-goose
+    image: go-app:with-goose
+    build: .
+    environment:
+      DATABASE_URL: "host=go-db user=postgres password=postgres dbname=postgres sslmode=disable"
+    ports:        # The format is "host_port:container_port", т.е. "порт машины:порт контейнера"
+      - "8000:8000"
+    depends_on:
+      - go-db
+  go-db:
+    container_name: go-db-with-goose
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:        
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:  
+  pgdata: {}
