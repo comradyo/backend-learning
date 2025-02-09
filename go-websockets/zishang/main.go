@@ -4,31 +4,35 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/zishang520/engine.io/v2/types"
 	"github.com/zishang520/engine.io/v2/utils"
 	"github.com/zishang520/socket.io/v2/socket"
 )
 
 func main() {
-	r := gin.Default()
+	r := echo.New()
+
+	r.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	opts := socket.DefaultServerOptions()
 	opts.SetTransports(types.NewSet("polling", "websocket", "webtransport")) // added webtransport
-	opts.SetAllowEIO3(true)
-	opts.SetCors(&types.Cors{
-		Origin:      "*",
-		Credentials: false,
-	})
+	opts.SetAllowEIO3(false)
 
 	server := socket.NewServer(nil, opts)
 
-	r.GET("/socket.io/*any", gin.WrapH(server.ServeHandler(opts)))
-	r.POST("/*any", gin.WrapH(server.ServeHandler(opts)))
+	r.Any("/socket.io/", echo.WrapHandler(server.ServeHandler(opts)))
 
 	SetupSocketHandler(server)
 
-	r.Run()
+	err := r.Start(":8080")
+	if err != nil {
+		log.Fatalf("router Start: %s\n", err)
+	}
 }
 
 func SetupSocketHandler(server *socket.Server) {

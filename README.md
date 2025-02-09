@@ -11,3 +11,9 @@
 
 Делал по https://citizix.com/managing-database-migrations-with-golang-goose-using-incremental-sql-changes/
 
+#### go-websockets
+Изучаю веб-сокеты
+
+Делал по https://www.golinuxcloud.com/golang-websocket/
+https://habr.com/ru/companies/otus/articles/781748/
+

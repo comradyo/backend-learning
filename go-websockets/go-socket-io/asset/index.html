@@ -22,7 +22,7 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       var socket = io();
-      var s2 = io("/");
+      var s2 = io("/chat");
 
       socket.on('reply', function(msg){
         $('#messages').append($('<li>').text(msg));
