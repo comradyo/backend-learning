@@ -42,6 +42,7 @@ services:
     depends_on:   # Список приложений, которые хотим запустить до текущего.
                   # (наверное, текущее не запустится, если зависимости не запустились)
       - go-db
+      - go-redis  # Добавил для изучения, можно выключить
   go-db:
     container_name: go-db
     image: postgres:17
@@ -60,6 +61,40 @@ services:
       - "5432:5432"
     volumes:      # какая-то сущность для хранения информации (при передаче контейнера она сохранится)
       - pgdata:/var/lib/postgresql/data
+  go-redis:
+                  # Подключение через redis-cli. При вооде команды без пароля, он подключится, но сделать запросы не получится.
+                  # Чтобы его ввести, нужно ввести:
+                  # auth 'your-password'
+    container_name: go-redis
+    image: redis:latest
+    environment:
+      - REDIS_PASSWORD=redis
+      - REDIS_USER=redis
+      - REDIS_USER_PASSWORD=redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redisdata:/data
+    deploy: # Параметры docker-compose, а не redis
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    command: >
+      sh -c '
+        redis-server --requirepass ${REDIS_USER_PASSWORD}
+      '
+    healthcheck: # Параметры docker-compose, а не redis
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
 
 volumes:  
   pgdata: {}

@@ -36,3 +36,23 @@ https://dev.to/francescoxx/build-a-crud-rest-api-in-go-using-mux-postgres-docker
 1. Так, во-первых, куда-то потерял инструкцию, как поднимать контейнер через команду `docker` (без compose), вряд ли я её не писал
 2. Опытным путем выяснил, что переменные окружения контейнера не инкапсулированы в нём, а берутся из docker-compose файла.
 3. У одного контейнера свой localhost, поэтому не получится через localhost обратиться к другому контейнеру.
+
+UPD (26.02.2025): redis <br />
+
+https://habr.com/ru/articles/823936/ <br />
+https://www.geeksforgeeks.org/complete-tutorial-of-configuration-in-redis/ <br />
+
+7. Поднимаем контейнер с БД (образ берется из репозитория с образами postgres, подробнее описал в docker-compose.yml) <br />
+`docker compose up -d go-redis`
+8. Смотрим, что контейнер поднялся и подключаемся к базе, чтобы убедиться, что с ней всё ок <br />
+`docker ps -a` — список контейнеров и их статусы  <br />
+`psql -h localhost -p 5432 -d postgres -U postgres -W` — подключение к БД через консоль
+`redis-cli`
+
+# Команды
+
+Информация о контейнере: <br />
+`docker inspect container_name` <br />
+`docker inspect -f "{{ .NetworkSettings.IPAddress }}" container_name` <br />
+
+Подключение к терминалу контейнера: <br />

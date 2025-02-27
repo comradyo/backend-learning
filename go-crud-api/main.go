@@ -1,14 +1,17 @@
 package main
 
 import (
-    "database/sql"
-    "encoding/json"
-    "log"
-    "net/http"
-    "os"
+	"context"
+	"database/sql"
+	"encoding/json"
+	"log"
+	"net/http"
+	"os"
 
-    "github.com/gorilla/mux"
-    _ "github.com/lib/pq"
+	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type User struct {
@@ -18,30 +21,11 @@ type User struct {
 }
 
 func main() {
-    //connect to database
-    db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer db.Close()
 
-    //create the table if it doesn't exist
-    _, err = db.Exec("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, email TEXT)")
-
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    //create router
-    router := mux.NewRouter()
-    router.HandleFunc("/users", getUsers(db)).Methods("GET")
-    router.HandleFunc("/users/{id}", getUser(db)).Methods("GET")
-    router.HandleFunc("/users", createUser(db)).Methods("POST")
-    router.HandleFunc("/users/{id}", updateUser(db)).Methods("PUT")
-    router.HandleFunc("/users/{id}", deleteUser(db)).Methods("DELETE")
-
-    //start server
-    log.Fatal(http.ListenAndServe(":8000", jsonContentTypeMiddleware(router)))
+    //playWithHTTP()
+    // Добавил подключение к redis (26.02.2025)
+    ctx := context.Background()
+    playWithRedis(ctx)
 }
 
 func jsonContentTypeMiddleware(next http.Handler) http.Handler {
@@ -148,4 +132,62 @@ func deleteUser(db *sql.DB) http.HandlerFunc {
             json.NewEncoder(w).Encode("User deleted")
         }
     }
+}
+
+func playWithHTTP() {
+    //connect to database
+    db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    //create the table if it doesn't exist
+    _, err = db.Exec("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, email TEXT)")
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    //create router
+    router := mux.NewRouter()
+    router.HandleFunc("/users", getUsers(db)).Methods("GET")
+    router.HandleFunc("/users/{id}", getUser(db)).Methods("GET")
+    router.HandleFunc("/users", createUser(db)).Methods("POST")
+    router.HandleFunc("/users/{id}", updateUser(db)).Methods("PUT")
+    router.HandleFunc("/users/{id}", deleteUser(db)).Methods("DELETE")
+
+    //start server
+    log.Fatal(http.ListenAndServe(":8000", jsonContentTypeMiddleware(router)))
+}
+
+func playWithRedis(ctx context.Context) {
+    rdb := redis.NewClient(&redis.Options{
+        Addr:     os.Getenv("REDIS_ADDR"),
+        //Username: "redis",
+        Password: os.Getenv("REDIS_PASSWORD"), // no password set
+        DB:       0,  // use default DB
+    })
+
+    err := rdb.Set(ctx, "key", "value", 0).Err()
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    val, err := rdb.Get(ctx, "key").Result()
+    if err != nil {
+        log.Fatal(err)
+    }
+    log.Println("key", val)
+
+    val2, err := rdb.Get(ctx, "key2").Result()
+    if err == redis.Nil {
+        log.Println("key2 does not exist")
+    } else if err != nil {
+        log.Fatal(err)
+    } else {
+        log.Println("key2", val2)
+    }
+    // Output: key value
+    // key2 does not exist
 }
