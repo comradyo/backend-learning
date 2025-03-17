@@ -1,20 +1,6 @@
 server {
-    listen 80;
-    listen [::]:80;
-
-    server_name ${DOMAIN_NAME} www.${DOMAIN_NAME};
-    server_tokens off;
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-
-    location / {
-        return 301 https://${DOMAIN_NAME}$request_uri;
-    }
-
-    # The first location block serves the files necessary for Certbot to authenticate the server and create the certificate. 
-    # The second location block sends the rest of the port 80 HTTP traffic to HTTPS.
+    listen       80;
+    server_name  localhost;
 
     location / {
         root   /;
@@ -50,16 +36,11 @@ server {
     }
 }
 
+# Прокси-сервер
 server {
-    listen 443 default_server ssl http2;
-    listen [::]:443 ssl http2;
+    listen 8080;
 
-    server_name ${DOMAIN_NAME};
-
-    ssl_certificate /etc/nginx/ssl/live/${DOMAIN_NAME}/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/live/${DOMAIN_NAME}/privkey.pem;
-    
     location / {
-    	proxy_pass http://${DOMAIN_NAME};
+        proxy_pass http://localhost:8888; # TODO: Вот так?
     }
 }

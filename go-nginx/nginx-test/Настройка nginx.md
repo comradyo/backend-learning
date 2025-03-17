@@ -57,7 +57,7 @@ http://freedns.afraid.org/subdomain/edit.php
 ```
 curl 37.234.173.208:8080
 # или
-curl beatch.chickenkiller.com:8080
+curl mytestsite.chickenkiller.com:8080
 ```
 Ответ:
 ```
@@ -107,4 +107,32 @@ COPY .nginx/nginx.conf /etc/nginx/templates/nginx.conf.template
 4. Обратился по ручке, в которой проксируется запрос на другой сервер (гошный), получил ответ.
 
 Остается актуальным вопрос с тем, как объяснить nginx, какой из файл конфигурации использовать.
+
+Накатил всё на сервер, могу теперь обращаться к ручке:
+```
+curl http://mytestsite.chickenkiller.com:8080/api/
+
+Hello, world! 😉 
+```
+
+# Настройка ssl сертификата
+
+https://www.sslforfree.com/
+
+https://certbot.eff.org/instructions?ws=nginx&os=snap
+
+1. sudo snap install --classic certbot
+
+Если установить не получается, выполнить (https://askubuntu.com/questions/1258137/cannot-communicate-with-server-post-http-localhost-v2-apps-dial-unix-run-sn):
+```
+sudo systemctl unmask snapd.service
+sudo systemctl enable snapd.service
+sudo systemctl start snapd.service
+```
+
+2. sudo ln -s /snap/bin/certbot /usr/bin/certbot
+3. sudo certbot certonly --nginx
+
+https://phoenixnap.com/kb/letsencrypt-docker
+
 
