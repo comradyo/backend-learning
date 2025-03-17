@@ -31,6 +31,16 @@ sudo apt-get install -y docker-compose-plugin
 ```
 docker compose version
 ```
+
+Добавить пользователя в группу sudo докера:
+```
+sudo usermod -aG docker $USER
+sudo reboot
+```
+Или, чтобы не перезагружать систему, выполнить (нужно будет предварительно установить setfacl):
+```
+sudo setfacl --modify user:<user name or ID>:rw /var/run/docker.sock
+```
 3.
 
 ## Создание и запуск приложения

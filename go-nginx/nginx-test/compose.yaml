@@ -5,6 +5,12 @@ services:
     build:
       context: .
       dockerfile: .nginx/Dockerfile
+    environment:
+      BACKEND_URL: ${BACKEND_URL}
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_HOST: ${BACKEND_HOST}
+    volumes:
+    - .nginx/templates:/etc/nginx/templates
     #volumes:
     #  - type: bind
     #    source: ./.nginx/nginx.conf
@@ -12,6 +18,8 @@ services:
     #    read_only: true
     #volumes:
     #  - /var/www/html:/usr/share/nginx/html
+    #volumes:
+    #  - ./mysite.template:/etc/nginx/conf.d/mysite.template
     ports:
       - 8080:80
     depends_on:
@@ -24,8 +32,8 @@ services:
     build:
       context: backend # Видимо, переходим в эту папку, и работаем в ней
       dockerfile: Dockerfile
-    ports: # The format is "host_port:container_port", т.е. "порт машины:порт контейнера"
-      - 8080:8888
+    #ports: # The format is "host_port:container_port", т.е. "порт машины:порт контейнера"
+    #  - 8080:8888
 
   # volumes - defines the volume we want to use for storing data inside the container. 
   # In this case, we mount the /var/www/html directory on the host machine to the /usr/share/nginx/html 
