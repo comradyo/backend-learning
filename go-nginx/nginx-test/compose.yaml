@@ -22,8 +22,8 @@ services:
     build:
       context: backend # Видимо, переходим в эту папку, и работаем в ней
       dockerfile: Dockerfile
-    #ports: # The format is "host_port:container_port", т.е. "порт машины:порт контейнера"
-    #  - 8888:8888
+    ports: # The format is "host_port:container_port", т.е. "порт машины:порт контейнера"
+      - 8080:8888
 
   # volumes - defines the volume we want to use for storing data inside the container. 
   # In this case, we mount the /var/www/html directory on the host machine to the /usr/share/nginx/html 
