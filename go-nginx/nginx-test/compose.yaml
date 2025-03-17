@@ -19,6 +19,8 @@ services:
 
   go-backend-server:
     container_name: backend-test-server
+    environment:
+      - BACKEND_PORT: ${BACKEND_PORT}
     build:
       context: backend # Видимо, переходим в эту папку, и работаем в ней
       dockerfile: Dockerfile

@@ -1,11 +1,12 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
+	"fmt"
+	"net/http"
+	"os"
 )
 
-const port = "8888"
+var port = os.Getenv("BACKEND_PORT")
 
 func route(w http.ResponseWriter, r *http.Request) {
     fmt.Println("GOT REQUEST")
@@ -13,6 +14,10 @@ func route(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    if len(port) == 0 {
+        fmt.Printf("[Error] port is empty")
+        return
+    }
     //http.HandleFunc("/api/hello-world", route)
     fmt.Printf("Hello, World!\n")
     http.HandleFunc("/", route)
