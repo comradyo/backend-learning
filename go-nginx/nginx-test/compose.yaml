@@ -4,7 +4,7 @@ services:
     image: nginx
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: .nginx/Dockerfile
     #volumes:
     #  - type: bind
     #    source: ./.nginx/nginx.conf
@@ -14,6 +14,16 @@ services:
     #  - /var/www/html:/usr/share/nginx/html
     ports:
       - 8080:80
+    depends_on:
+      - go-backend-server
+
+  go-backend-server:
+    container_name: backend-test-server
+    build:
+      context: backend # Видимо, переходим в эту папку, и работаем в ней
+      dockerfile: Dockerfile
+    #ports: # The format is "host_port:container_port", т.е. "порт машины:порт контейнера"
+    #  - 8888:8888
 
   # volumes - defines the volume we want to use for storing data inside the container. 
   # In this case, we mount the /var/www/html directory on the host machine to the /usr/share/nginx/html 

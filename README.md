@@ -17,3 +17,9 @@
 Делал по https://www.golinuxcloud.com/golang-websocket/
 https://habr.com/ru/companies/otus/articles/781748/
 
+#### telegram web-app
+
+Тестирование web app локально: <br />
+
+
+
