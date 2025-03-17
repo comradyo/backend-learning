@@ -1,5 +1,39 @@
-# Порядок действий
+# Базовое приложение с контейнерами
 
+## Установка
+
+1. Установка docker: TODO
+2. Установка docker compose: <br />
+Если следующая команда не сработает (а она, скорее всего, не сработает):
+```
+sudo apt-get install docker-compose-plugin
+```
+Тогда нужно подключиться сервер с обновлениями плагина docker compose к менеджеру пакетов (вроде) <br />
+https://labex.io/tutorials/docker-how-to-fix-unable-to-locate-docker-compose-plugin-error-413758 <br />
+
+```
+sudo apt-get update
+
+sudo apt-get install -y ca-certificates curl gnupg
+
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+
+sudo apt-get install -y docker-compose-plugin
+```
+
+Проверить, что плагин установился:
+```
+docker compose version
+```
+3.
+
+## Создание и запуск приложения
 https://dev.to/francescoxx/build-a-crud-rest-api-in-go-using-mux-postgres-docker-and-docker-compose-2a75
 
 1. Создаем папку (уже создана) <br />
@@ -75,11 +109,11 @@ https://github.com/actionanand/node-util <br />
 Например: <br />
 ```
 ENTRYPOINT [ "npm" ]
-``` <br />
-При вызове контейнера с названием `npm-util-container` и таким `ENTRYPOINT`, будет выполняться команда `npm` с переданными аргументами/флагами: <br />
+```
+При вызове контейнера с названием `npm-util-container` и таким `ENTRYPOINT`, будет выполняться команда `npm` с переданными аргументами/флагами: 
 ```
 docker-compose run --rm npm-util-container init
-``` <br />
+```
 Сделал мигратор, работает. <br />
 Как теперь сделать так, чтобы работала команда создания миграции? Или это не нужно вовсе? Миграцию буду создавать у себя на компе, а на сервере нужна только накатка, по сути. <br />
 6. Как сделать так, чтобы контейнер слал данные в какой-то внешний файл, и чтобы он мог его подгрузить при перезапуске? Например, postgres.
